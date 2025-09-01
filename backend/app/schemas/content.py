@@ -2,6 +2,23 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 
+class ContentFileBase(BaseModel):
+    filename: str
+    file_url: str
+    file_type: str
+    file_size: Optional[int] = None
+
+class ContentFileCreate(ContentFileBase):
+    content_id: int
+
+class ContentFileRead(ContentFileBase):
+    id: int
+    content_id: int
+    uploaded_at: datetime
+
+    class Config:
+        from_attributes = True
+
 class ContentBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -24,28 +41,12 @@ class Content(ContentBase):
     subject_id: int
     is_active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 class ContentWithFiles(Content):
-    files: List['ContentFile'] = []
+    files: List[ContentFileRead] = []
 
-# Archivo de contenido
-class ContentFileBase(BaseModel):
-    filename: str
-    file_type: str
-
-class ContentFileCreate(ContentFileBase):
-    content_id: int
-    file_url: str
-    file_size: Optional[int] = None
-
-class ContentFile(ContentFileBase):
-    id: int
-    file_url: str
-    file_size: Optional[int] = None
-    uploaded_at: datetime
-    
     class Config:
         from_attributes = True

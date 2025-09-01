@@ -14,16 +14,15 @@ class UserCreate(UserBase):
 
 # Schema para actualizar usuario
 class UserUpdate(BaseModel):
-    full_name: Optional[str] = None
     email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
 
 # Schema para respuestas (sin contraseña)
 class User(UserBase):
     id: int
     is_active: bool
-    is_verified: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

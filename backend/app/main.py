@@ -1,15 +1,35 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app import models  # Importa todos los modelos para crear las tablas
 
-Base.metadata.create_all(bind=engine)
+# Importar routers
+from app.routers import auth, users, subjects, content, purchases
 
-from fastapi import FastAPI
+# Crear las tablas en la base de datos
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Plataforma Académica UBP",
-    description="API para material académico de Ingeniería en Informática",
+    description="API para venta de material académico",
     version="1.0.0"
 )
+
+# Configurar CORS para el frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # URL del frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Incluir routers
+app.include_router(auth.router)
+app.include_router(users.router)
+app.include_router(subjects.router)
+app.include_router(content.router)
+app.include_router(purchases.router)
 
 @app.get("/")
 def read_root():

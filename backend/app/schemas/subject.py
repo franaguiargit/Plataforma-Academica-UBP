@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
+from .content import Content
 
 class SubjectBase(BaseModel):
     name: str
@@ -22,10 +23,12 @@ class Subject(SubjectBase):
     id: int
     is_active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
-# Schema con contenidos incluidos
 class SubjectWithContents(Subject):
-    contents: List['Content'] = []
+    contents: List[Content] = []
+
+    class Config:
+        from_attributes = True

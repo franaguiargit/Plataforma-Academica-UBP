@@ -1,0 +1,2 @@
+user_id=1 email=fran@example.com verify_link=http://127.0.0.1:8000/auth/verify?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InZlcmlmeSIsImV4cCI6MTc1OTE4MTMzNX0.ChT9OpHnmxE5eguDvM4dt8P6G2I3jOwL3s2g7AnbEZ0
+user_id=1 email=fran@example.com reset_link=http://127.0.0.1:8000/auth/reset-password?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwidHlwZSI6InBhc3N3b3JkX3Jlc2V0IiwiZXhwIjoxNzU5MTgxMzYxfQ.XfPs92VbyDbWXPtvu_LITQrHMRVmqxkj3t291c5Vm_Y

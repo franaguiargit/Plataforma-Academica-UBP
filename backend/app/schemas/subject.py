@@ -1,34 +1,36 @@
 from pydantic import BaseModel
-from datetime import datetime
 from typing import Optional, List
-from .content import Content
+from datetime import datetime
+from decimal import Decimal
 
 class SubjectBase(BaseModel):
-    name: str
+    title: str
     description: Optional[str] = None
-    year: int
-    semester: int
-    price: float
+    price: Decimal
 
 class SubjectCreate(SubjectBase):
     pass
 
-class SubjectUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[float] = None
-    is_active: Optional[bool] = None
-
-class Subject(SubjectBase):
+class SubjectRead(SubjectBase):
     id: int
-    is_active: bool
     created_at: datetime
-
+    
     class Config:
         from_attributes = True
 
-class SubjectWithContents(Subject):
-    contents: List[Content] = []
+class SubjectUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[Decimal] = None
 
-    class Config:
-        from_attributes = True
+# Para compatibilidad con código existente
+Subject = SubjectRead
+
+# DTO con contenidos - definir después para evitar problemas circulares
+class SubjectWithContents(SubjectRead):
+    contents: List["ContentRead"] = []
+
+# Resolver forward references después de definir todos los schemas
+def resolve_forward_refs():
+    from .content import ContentRead
+    SubjectWithContents.model_rebuild()

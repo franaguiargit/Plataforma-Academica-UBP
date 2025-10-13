@@ -1,8 +1,13 @@
 from __future__ import annotations
 from enum import Enum
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
+
+if TYPE_CHECKING:
+    from .user import UserRead
+    from .subject import SubjectRead
 
 class PaymentStatus(str, Enum):
     PENDING = "pending"
@@ -11,40 +16,34 @@ class PaymentStatus(str, Enum):
     CANCELLED = "cancelled"
 
 class PurchaseBase(BaseModel):
+    user_id: int
     subject_id: int
     amount: float
-    payment_method: str
 
 class PurchaseCreate(PurchaseBase):
-    user_id: int
+    pass
+
+class PurchaseRead(PurchaseBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 class PurchaseUpdate(BaseModel):
-    status: Optional[PaymentStatus] = None
-    payment_id: Optional[str] = None
+    status: Optional[str] = None
+    amount: Optional[Decimal] = None
 
-class Purchase(PurchaseBase):
-    id: int
-    user_id: int
-    status: PaymentStatus
-    payment_id: Optional[str] = None
-    purchased_at: datetime
+# Schemas con detalles (usando forward refs)
+class PurchaseWithUserRead(PurchaseRead):
+    user: Optional["UserRead"] = None
 
-    class Config:
-        from_attributes = True
+class PurchaseWithSubjectRead(PurchaseRead):
+    subject: Optional["SubjectRead"] = None
 
-# Basic info only
-class PurchaseInfo(BaseModel):
-    id: int
-    status: PaymentStatus
-    purchased_at: datetime
+class PurchaseWithDetailsRead(PurchaseRead):
+    user: Optional["UserRead"] = None
+    subject: Optional["SubjectRead"] = None
 
-    class Config:
-        from_attributes = True
-
-class PurchaseWithDetails(Purchase):
-    # Use string forward references to avoid circular imports
-    user: "User"
-    subject: "Subject"
-
-    class Config:
-        from_attributes = True
+# Para compatibilidad con código existente
+Purchase = PurchaseRead

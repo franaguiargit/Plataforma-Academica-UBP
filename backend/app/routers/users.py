@@ -1,22 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import Any
+from typing import Any, List
 
 from ..database import get_db
-from ..models import User
-from ..schemas import User as UserSchema, UserUpdate
-from ..utils.security import get_current_active_user
+from ..models import User  # ← Debería estar ya
+from ..schemas import UserCreate, UserRead, UserUpdate
+from ..utils.security import get_current_active_user, require_admin
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/me", response_model=UserSchema)
+@router.get("/me", response_model=UserRead)
 def read_user_me(
     current_user: User = Depends(get_current_active_user)
 ) -> Any:
     """Obtener mi perfil"""
     return current_user
 
-@router.put("/me", response_model=UserSchema)
+@router.put("/me", response_model=UserRead)
 def update_user_me(
     user_update: UserUpdate,
     db: Session = Depends(get_db),
@@ -44,7 +44,7 @@ def update_user_me(
     db.refresh(current_user)
     return current_user
 
-@router.get("/me/purchases", response_model=list[UserSchema])
+@router.get("/me/purchases", response_model=List[UserRead])
 def read_user_purchases(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user)

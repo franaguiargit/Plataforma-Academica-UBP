@@ -1,40 +1,32 @@
 from pydantic import BaseModel, EmailStr
-from datetime import datetime
 from typing import Optional
+from datetime import datetime
+from ..models.user import UserRole
 
-# Base schema compartido
 class UserBase(BaseModel):
-    email: EmailStr
     username: str
-    full_name: str
-
-# Schema para crear usuario
-class UserCreate(UserBase):
-    password: str
-
-# Schema para actualizar usuario
-class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
+    email: EmailStr
     full_name: Optional[str] = None
 
-# Schema para respuestas (sin contraseña)
-class User(UserBase):
+class UserCreate(UserBase):
+    password: str
+    role: Optional[UserRole] = UserRole.STUDENT
+
+class UserRead(UserBase):
     id: int
     is_active: bool
+    role: UserRole
     created_at: datetime
-
+    
     class Config:
         from_attributes = True
 
-# Schema para login
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-# Schema para token
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
+class UserUpdate(BaseModel):
     username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    full_name: Optional[str] = None
+    is_active: Optional[bool] = None
+    role: Optional[UserRole] = None
+
+# Para compatibilidad con código existente
+User = UserRead

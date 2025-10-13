@@ -1,31 +1,13 @@
-from .user import User, UserCreate, UserUpdate, Token, TokenData
-from .subject import Subject, SubjectCreate, SubjectUpdate, SubjectWithContents
-from .content import (
-    Content,
-    ContentCreate,
-    ContentUpdate,
-    ContentWithFiles,
-    ContentFileBase,
-    ContentFileCreate,
-    ContentFileRead
-)
-from .purchase import (
-    Purchase,
-    PurchaseCreate,
-    PurchaseUpdate,
-    PurchaseWithDetails,
-    PaymentStatus
-)
+from .user import UserCreate, UserRead, UserUpdate
+from .subject import SubjectCreate, SubjectRead, SubjectUpdate
+from .content import ContentCreate, ContentRead, ContentUpdate
+from .auth import Token, TokenData
+from .purchase import PurchaseCreate, PurchaseRead
 
 __all__ = [
-    # User schemas
-    "User", "UserCreate", "UserUpdate", "Token", "TokenData",
-    # Subject schemas
-    "Subject", "SubjectCreate", "SubjectUpdate", "SubjectWithContents",
-    # Content schemas
-    "Content", "ContentCreate", "ContentUpdate", "ContentWithFiles",
-    "ContentFileBase", "ContentFileCreate", "ContentFileRead",
-    # Purchase schemas
-    "Purchase", "PurchaseCreate", "PurchaseUpdate", "PurchaseWithDetails",
-    "PaymentStatus"
+    "UserCreate", "UserRead", "UserUpdate",
+    "SubjectCreate", "SubjectRead", "SubjectUpdate", 
+    "ContentCreate", "ContentRead", "ContentUpdate",
+    "Token", "TokenData",
+    "PurchaseCreate", "PurchaseRead"
 ]

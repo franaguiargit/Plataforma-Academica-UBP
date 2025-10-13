@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer
 
 from app.routers import auth, users, subjects, content, purchases
 
@@ -11,10 +10,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configurar CORS
+# CORS CRÍTICO para conectar frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios exactos
+    allow_origins=["*"],  # En desarrollo permitir todo
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

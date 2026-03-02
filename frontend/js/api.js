@@ -1,121 +1,280 @@
-// Configuración de la API
-const API_BASE_URL = 'http://127.0.0.1:8000';
-
-// Utilidad para hacer requests
-async function apiRequest(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
-    const token = localStorage.getItem('token');
-    
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        },
-        ...options
-    };
-    
-    // Agregar token si existe
-    if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    try {
-        const response = await fetch(url, config);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.detail || 'Error en la API');
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('API Error:', error);
-        throw error;
-    }
-}
-
-// Funciones específicas de la API
 const API = {
-    // Autenticación
-    login: async (username, password) => {
+    BASE_URL: 'http://127.0.0.1:5000',
+    
+getHeaders() {
+    const headers = {
+        'Content-Type': 'application/json'  // ✅ AGREGAR ESTO
+    };
+    const token = localStorage.getItem('token');
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+    return headers;
+},
+
+    async handleResponse(fetchPromise) {
+        try {
+            const response = await fetchPromise;
+            console.log('📡 API Response', response.status + ':', response.url);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ API Error:', errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
+            // ✅ FIX: Verificar si hay contenido antes de parsear
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                console.log('✅ API Data:', data);
+                return data;
+            } else {
+                // Si no es JSON, devolver texto
+                const text = await response.text();
+                console.log('✅ API Text:', text);
+                return text;
+            }
+        } catch (error) {
+            console.error('❌ API Request Failed:', error);
+            throw error;
+        }
+    },
+
+    async login(username, password) {
+        console.log('🔑 API Login:', username);
+        
         const formData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
         
-        return apiRequest('/auth/login', {
+        const response = await fetch(`${this.BASE_URL}/auth/login`, {
             method: 'POST',
-            headers: {
-                // No poner Content-Type para FormData
-            },
             body: formData
         });
+        return this.handleResponse(response);
     },
-    
-    getMe: async () => {
-        return apiRequest('/auth/me');
+
+    async getCurrentUser() {
+        console.log('👤 API Get Current User');
+        const response = await fetch(`${this.BASE_URL}/auth/me`, {
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
     },
-    
-    // Materias
-    getSubjects: async () => {
-        return apiRequest('/subjects/');
+
+    async getSubjects() {
+        console.log('📚 API Get Subjects');
+        const response = await fetch(`${this.BASE_URL}/subjects/`, {
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
     },
-    
-    createSubject: async (subject) => {
-        return apiRequest('/subjects/', {
+
+    async getMyPurchases() {
+        console.log('🛒 API Get My Purchases');
+        const response = await fetch(`${this.BASE_URL}/purchases/my-purchases`, {
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async createSubject(subject) {
+        console.log('➕ API Create Subject:', subject);
+        const response = await fetch(`${this.BASE_URL}/subjects/`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
             body: JSON.stringify(subject)
         });
+        return this.handleResponse(response);
     },
-    
-    // Contenido
-    getSubjectContent: async (subjectId) => {
-        return apiRequest(`/content/subject/${subjectId}`);
+
+    async getSubjectContent(subjectId) {
+        console.log('📖 API Get Subject Content:', subjectId);
+        // ✅ CAMBIAR LA RUTA:
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/content/subjects/${subjectId}/content`, {
+                headers: this.getHeaders()
+            })
+        );
     },
-    
-    createContent: async (content) => {
-        return apiRequest('/content/', {
+
+    async createContent(content) {
+        console.log('➕ API Create Content:', content);
+        const response = await fetch(`${this.BASE_URL}/content/`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
             body: JSON.stringify(content)
         });
+        return this.handleResponse(response);
     },
-    
-    // Compras
-    purchaseSubject: async (subjectId) => {
-        return apiRequest('/purchases/', {
+
+    async purchaseSubjectWithData(purchaseData) {
+        console.log('💳 API Purchase:', purchaseData);
+        const response = await fetch(`${this.BASE_URL}/purchases/`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
+            body: JSON.stringify(purchaseData)
+        });
+        return this.handleResponse(response);
+    },
+
+    async createMPPreference(subjectId) {
+        console.log('💳 API Create MP Preference:', subjectId);
+        const response = await fetch(`${this.BASE_URL}/purchases/create-preference`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
+            body: JSON.stringify({ subject_id: subjectId })
+        });
+        return this.handleResponse(response);
+    },
+
+    async confirmMPPayment(subjectId, paymentId, paymentStatus) {
+        console.log('✅ API Confirm MP Payment:', subjectId, paymentId, paymentStatus);
+        const response = await fetch(`${this.BASE_URL}/purchases/confirm-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
             body: JSON.stringify({
                 subject_id: subjectId,
-                user_id: 1, // Se ignora en backend, usa current_user
-                amount: 0   // Se calcula en backend
+                payment_id: paymentId || 'simulation',
+                payment_status: paymentStatus || 'approved'
             })
         });
+        return this.handleResponse(response);
     },
-    
-    getMyPurchases: async () => {
-        return apiRequest('/purchases/my-purchases');
+
+    async deleteSubject(subjectId) {
+        console.log('🗑️ API Delete Subject:', subjectId);
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/subjects/${subjectId}`, {
+                method: 'DELETE',
+                headers: this.getHeaders()
+            })
+        );
+    },
+
+    async deleteContent(contentId) {
+        console.log('🗑️ API Delete Content:', contentId);
+        const response = await fetch(`${this.BASE_URL}/content/${contentId}`, {
+            method: 'DELETE',
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
+    },
+
+    async updateSubject(subjectId, subject) {
+        console.log('📝 API Update Subject:', subjectId, subject);
+        const response = await fetch(`${this.BASE_URL}/subjects/${subjectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                ...this.getHeaders()
+            },
+            body: JSON.stringify(subject)
+        });
+        return this.handleResponse(response);
+    },
+
+    // Nuevos métodos para gestión de usuarios
+    async getAllUsers() {
+        console.log('👥 API Get All Users');
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/users/`, {
+                headers: this.getHeaders()
+            })
+        );
+    },
+
+    async getUserPurchases(userId) {
+        console.log('🛒 API Get User Purchases:', userId);
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/purchases/user/${userId}`, {
+                headers: this.getHeaders()
+            })
+        );
+    },
+
+    async deleteUser(userId) {
+        console.log('🗑️ API Delete User:', userId);
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/users/${userId}`, {
+                method: 'DELETE',
+                headers: this.getHeaders()
+            })
+        );
+    },
+
+    async createUser(userData) {
+        console.log('➕ API Create User:', userData);
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/users/`, {
+                method: 'POST',
+                headers: this.getHeaders(),
+                body: JSON.stringify(userData)
+            })
+        );
+    },
+
+    async refreshToken(refreshToken) {
+        console.log('🔄 API Refresh Token');
+        const response = await fetch(`${this.BASE_URL}/auth/refresh-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken })
+        });
+        return this.handleResponse(response);
+    },
+
+    async getStats() {
+        console.log('📊 API Get Stats');
+        return this.handleResponse(
+            fetch(`${this.BASE_URL}/stats`, {
+                headers: this.getHeaders()
+            })
+        );
+    },
+
+    async updateMyProfile(data) {
+        console.log('👤 API Update Profile:', data);
+        const response = await fetch(`${this.BASE_URL}/users/me`, {
+            method: 'PUT',
+            headers: this.getHeaders(),
+            body: JSON.stringify(data)
+        });
+        return this.handleResponse(response);
+    },
+
+    async getRecentPurchases(limit = 20) {
+        const response = await fetch(`${this.BASE_URL}/purchases/recent?limit=${limit}`, {
+            headers: this.getHeaders()
+        });
+        return this.handleResponse(response);
     }
 };
 
+
+/*
 // Estado de autenticación
 let currentUser = null;
 
 // Inicializar autenticación
 function initAuth() {
-    const token = localStorage.getItem('token');
-    if (token) {
-        // Verificar si el token es válido
-        API.getMe()
-            .then(user => {
-                currentUser = user;
-                showDashboard();
-            })
-            .catch(() => {
-                // Token inválido, limpiar
-                logout();
-            });
-    } else {
-        showLogin();
-    }
+    // ... TODO ESTO COMENTAR ...
 }
 
 // Login
@@ -182,3 +341,4 @@ function isAdmin() {
 function canCreateContent() {
     return currentUser && (currentUser.role === 'admin' || currentUser.role === 'teacher');
 }
+*/

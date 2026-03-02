@@ -1,17 +1,19 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
-from sqlalchemy.sql import func
-from ..database import Base
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from app.database import Base
 
 class Content(Base):
-    __tablename__ = "contents"
+    __tablename__ = "content"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    content_type = Column(String(100), nullable=False)
-    subject_id = Column(Integer, ForeignKey("subjects.id"), nullable=False)
-    created_at = Column(DateTime, default=func.now())
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    content_type = Column(String, nullable=False)  # ← Asegúrate que sea content_type
+    content_url = Column(String)
+    subject_id = Column(Integer, ForeignKey("subjects.id"))
+    order_index = Column(Integer, default=1)
+    duration = Column(String)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    # ELIMINAR TODAS LAS RELACIONES POR AHORA
-    # subject = relationship("Subject", back_populates="contents")
-    # files = relationship("ContentFile", back_populates="content")
+    subject = relationship("Subject", back_populates="contents")

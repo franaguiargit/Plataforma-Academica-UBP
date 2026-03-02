@@ -3,10 +3,15 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Tuple, Dict, Any
 from jose import jwt, JWTError
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app.models.user import User
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret")
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 def create_access_token(subject: str | int, extra: Dict[str, Any] | None = None) -> str:
@@ -51,3 +56,20 @@ def decode_token(token: str) -> Dict[str, Any]:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError as e:
         raise e
+
+def decode_access_token(token: str):
+    """
+    Decodifica un token JWT y devuelve el payload o None si es inválido.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except JWTError:
+        return None
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer()),
+    db: Session = Depends(get_db)
+) -> User:
+    # lógica de verificación de token
+    pass

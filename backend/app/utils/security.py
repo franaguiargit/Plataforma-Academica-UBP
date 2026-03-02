@@ -11,7 +11,7 @@ from ..models.user import User, UserRole
 from .jwt import decode_token, SECRET_KEY, ALGORITHM
 
 # Configuración
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
 
 # Configuración de seguridad
 security = HTTPBearer()

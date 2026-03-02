@@ -5,42 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plataforma Académica UBP</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="app">
-        <!-- Login Form -->
-        <div id="login-section" class="container">
-            <h1>Plataforma Académica UBP</h1>
-            <div class="login-form">
-                <h2>Iniciar Sesión</h2>
-                <form id="login-form">
-                    <input type="text" id="username" placeholder="Usuario" required>
-                    <input type="password" id="password" placeholder="Contraseña" required>
-                    <button type="submit">Ingresar</button>
-                </form>
-                <div id="error-message" class="error hidden"></div>
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-spinner"></div>
+            <h2>Cargando Plataforma...</h2>
+        </div>
+
+        <!-- Login Section -->
+        <div id="login-section" class="login-container">
+            <div class="login-background">
+                <div class="gradient-overlay"></div>
+            </div>
+            
+            <div class="login-content">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>UBP Academia</span>
+                        </div>
+                        <h1>Bienvenido de vuelta</h1>
+                        <p>Ingresa a tu plataforma educativa</p>
+                    </div>
+                    
+                    <form id="login-form" class="login-form">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="username" placeholder="Usuario" required>
+                        </div>
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="password" placeholder="Contraseña" required>
+                        </div>
+                        <button type="submit" class="btn-login">
+                            <span>Iniciar Sesión</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    
+                    <div id="error-message" class="error-message hidden">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span></span>
+                    </div>
+                    
+                    <div class="demo-credentials">
+                        <h4>Usuarios de prueba:</h4>
+                        <div class="demo-user" onclick="fillCredentials('admin', 'admin123')">
+                            <i class="fas fa-crown"></i>
+                            <span>admin / admin123 (Administrador)</span>
+                        </div>
+                        <div class="demo-user" onclick="fillCredentials('fran', 'secret')">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>fran / secret (Estudiante)</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Dashboard -->
-        <div id="dashboard-section" class="container hidden">
-            <header>
-                <h1>Dashboard</h1>
-                <div class="user-info">
-                    <span id="user-name"></span>
-                    <span id="user-role"></span>
-                    <button id="logout-btn">Cerrar Sesión</button>
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="dashboard-container hidden">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>UBP Academia</span>
+                    </div>
                 </div>
-            </header>
-            
-            <div id="content-area">
-                <!-- Contenido dinámico -->
-            </div>
+                
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-section="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="subjects">
+                        <i class="fas fa-book"></i>
+                        <span>Materias</span>
+                    </a>
+                    <a href="#" class="nav-item student-only" data-section="my-subjects">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Mis Materias</span>
+                    </a>
+                    <a href="#" class="nav-item admin-only" data-section="create">
+                        <i class="fas fa-plus"></i>
+                        <span>Crear</span>
+                    </a>
+                    <a href="#" class="nav-item admin-only" data-section="students">
+                        <i class="fas fa-users"></i>
+                        <span>Alumnos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-section="profile">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name" id="user-name"></div>
+                            <div class="user-role" id="user-role"></div>
+                        </div>
+                    </div>
+                    <button id="logout-btn" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <header class="main-header">
+                    <div class="header-left">
+                        <button class="sidebar-toggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h1 id="page-title">Dashboard</h1>
+                    </div>
+                    <div class="header-right">
+                        <button class="dark-mode-toggle" id="dark-mode-toggle" title="Modo oscuro">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </div>
+                    </div>
+                </header>
+
+                <div id="content-area" class="content-area">
+                    <!-- Contenido dinámico -->
+                </div>
+            </main>
         </div>
     </div>
 
-    <script src="js/api.js"></script>
+    <!-- Los mismos scripts que funcionan -->
+    <script src="js/api.js?v=2"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    
+    <!-- Nuevo script para UI mejorada -->
+    <script>
+        // Llenar credenciales de demo
+        function fillCredentials(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+        }
+        
+        // Dark mode toggle
+        function initDarkMode() {
+            const toggle = document.getElementById('dark-mode-toggle');
+            const saved = localStorage.getItem('darkMode');
+            if (saved === 'true') {
+                document.body.classList.add('dark-mode');
+                if (toggle) toggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            if (toggle) {
+                toggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDark);
+                    toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                });
+            }
+        }
+        
+        // Toggle sidebar en mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            initDarkMode();
+            
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('sidebar-open');
+                });
+            }
+        });
+    </script>
 </body>
 </html>

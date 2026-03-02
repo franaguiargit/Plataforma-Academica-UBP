@@ -1,15 +1,19 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from decimal import Decimal
 
 class SubjectBase(BaseModel):
     title: str
     description: Optional[str] = None
-    price: Decimal
+    price: float
 
 class SubjectCreate(SubjectBase):
     pass
+
+class SubjectUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
 
 class SubjectRead(SubjectBase):
     id: int
@@ -18,10 +22,12 @@ class SubjectRead(SubjectBase):
     class Config:
         from_attributes = True
 
-class SubjectUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    price: Optional[Decimal] = None
+class SubjectOut(SubjectBase):
+    id: int
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 # Para compatibilidad con código existente
 Subject = SubjectRead
